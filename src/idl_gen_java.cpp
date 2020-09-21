@@ -333,6 +333,7 @@ class JavaGenerator : public BaseGenerator {
     // "too sparse". Change at will.
     static const uint64_t kMaxSparseness = 5;
     if (range / static_cast<uint64_t>(enum_def.size()) < kMaxSparseness) {
+
       code += "\n  public static final String";
       code += "[] names = { ";
       auto val = enum_def.Vals().front();
@@ -344,6 +345,25 @@ class JavaGenerator : public BaseGenerator {
         code += "\"" + (*it)->name + "\", ";
       }
       code += "};\n\n";
+
+
+      code += "\n  public static final Class<?>";
+      code += "[] classes = { ";
+      val = enum_def.Vals().front();
+      for (auto it = enum_def.Vals().begin(); it != enum_def.Vals().end();
+           ++it) {
+        auto ev = *it;
+        for (auto k = enum_def.Distance(val, ev); k > 1; --k) code += "\"\", ";
+        val = ev;
+        if ((*it)->name == "NONE") {
+          code +=  "null, ";
+        } else {
+          code +=  (*it)->name + ".class, ";
+        }
+      }
+      code += "};\n\n";
+
+
       code += "  public static ";
       code += "String";
       code += " " + MakeCamel("name", false);
